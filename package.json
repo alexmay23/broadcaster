@@ -1,0 +1,15 @@
+{
+  "name": "broadcaster",
+  "version": "1.0.0",
+  "description": "Message broadcaster",
+  "main": "server.js",
+  "author": "Alex Moiseenko",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.17.1",
+    "socket.io": "^3.0.4"
+  },
+  "scripts": {
+    "start": "node server.js"
+  }
+}
