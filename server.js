@@ -27,7 +27,12 @@ const isValidTopic = (topic) => {
 
 app.post("/", async (req, res) => {
     let body = req.body;
-    console.log("BODY", body);
+    let key =  req.header("key");
+    if (!key || key !== process.env.KEY){
+        res.status(403);
+        res.send({"error": "Permission denied"});
+        return;
+    }
     if (!body || Object.entries(body).length === 0) {
         res.status(400);
         res.send({"error": "Empty body"});
@@ -50,13 +55,26 @@ app.post("/", async (req, res) => {
         res.send({"error": "Message should be object variable"});
         return;
     }
-    res.io.emit(topic, message);
+    let routeKey = body["route_key"];
+    if (routeKey === null || routeKey === undefined || typeof routeKey !== "string" || routeKey.length === 0){
+        res.status(400);
+        res.send({"error": "Route key should be not empty string variable"});
+        return;
+    }
+    res.io.to(routeKey).emit(topic, message);
     res.status(204);
     res.send();
 });
 
 io.on('connection', (socket) => {
-    console.log('a user connected');
+    const route = socket.handshake.query.routeKey;
+    if (route) {
+        socket.join(route);
+    }
+    else {
+        console.log("Route should be configured");
+    }
+    console.log(`User connected & joined ${route}`);
     socket.on('disconnect', () => {
         console.log('user disconnected');
     });
